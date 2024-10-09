@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:flutter_native_image/flutter_native_image.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:live_activities/models/live_activity_image.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path_provider_foundation/path_provider_foundation.dart';
@@ -57,18 +57,20 @@ class AppGroupsImageService {
 
           final targetWidth = (imageWidth * value.resizeFactor).round();
 
-          file = await FlutterNativeImage.compressImage(
+          final finalDestination = '${appGroupPicture.path}/$fileName';
+
+          await FlutterImageCompress.compressAndGetFile(
             file.path,
-            targetWidth: targetWidth,
-            targetHeight: (imageHeight * targetWidth / imageWidth).round(),
+            finalDestination,
+            minWidth: targetWidth,
+            minHeight: (imageHeight * targetWidth / imageWidth).round(),
           );
+
+          file.copySync(finalDestination);
+
+          data[key] = finalDestination;
+          _assetsCopiedInAppGroups.add(finalDestination);
         }
-
-        final finalDestination = '${appGroupPicture.path}/$fileName';
-        file.copySync(finalDestination);
-
-        data[key] = finalDestination;
-        _assetsCopiedInAppGroups.add(finalDestination);
 
         // remove file from temp directory
         file.deleteSync();
