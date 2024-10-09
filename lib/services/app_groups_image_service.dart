@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:app_group_directory/app_group_directory.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:live_activities/models/live_activity_image.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path_provider_foundation/path_provider_foundation.dart';
 
 const kPictureFolderName = 'LiveActivitiesPictures';
 
@@ -21,12 +21,10 @@ class AppGroupsImageService {
       final value = data[key];
 
       if (value is LiveActivityImage) {
-        Directory? sharedDirectory =
-            await AppGroupDirectory.getAppGroupDirectory(
-          appGroupId!,
+        String? sharedDirectory = await PathProviderFoundation().getContainerPath(
+          appGroupIdentifier: appGroupId!,
         );
-        Directory appGroupPicture =
-            Directory('${sharedDirectory!.path}/$kPictureFolderName');
+        Directory appGroupPicture = Directory('${sharedDirectory!}/$kPictureFolderName');
         Directory tempDir = await getTemporaryDirectory();
 
         // create directory if not exists
@@ -79,11 +77,10 @@ class AppGroupsImageService {
   }
 
   Future<void> removeAllImages() async {
-    final appGroupDirectory =
-        await AppGroupDirectory.getAppGroupDirectory(appGroupId!);
-    final laPictureDir = Directory(
-      '${appGroupDirectory!.path}/$kPictureFolderName',
+    final sharedDirectory = await PathProviderFoundation().getContainerPath(
+      appGroupIdentifier: appGroupId!,
     );
+    final laPictureDir = Directory('${sharedDirectory!}/$kPictureFolderName');
     laPictureDir.deleteSync(recursive: true);
   }
 
